@@ -1,0 +1,49 @@
+# patch_manager.pp
+
+class patch_manager {
+  $required_packages = ['python3', 'python3-pip', 'apt-transport-https', 'ca-certificates']
+
+  package { $required_packages:
+    ensure => installed,
+  }
+
+  file { '/opt/patch_manager':
+    ensure => directory,
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0755',
+  }
+
+  file { '/opt/patch_manager/patch_manager.py':
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    source  => 'puppet:///modules/patch_manager/patch_manager.py',
+    require => File['/opt/patch_manager'],
+  }
+
+  file { '/opt/patch_manager/config.json':
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    content => template('patch_manager/config.json.erb'),
+    require => File['/opt/patch_manager'],
+  }
+
+  file { '/usr/local/bin/run_patch_manager.sh':
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0755',
+    source  => 'puppet:///modules/patch_manager/run_patch_manager.sh',
+  }
+
+  cron { 'run_patch_manager':
+    command => '/usr/local/bin/run_patch_manager.sh',
+    user    => 'root',
+    hour    => '2',
+    minute  => '0',
+  }
+}

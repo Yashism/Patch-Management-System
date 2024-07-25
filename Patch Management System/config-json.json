@@ -1,0 +1,4 @@
+{
+    "allowed_packages": ["apache2", "nginx", "mysql-server", "php"],
+    "report_file": "/var/log/patch_report.log"
+}
